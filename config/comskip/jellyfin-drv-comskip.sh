@@ -17,17 +17,17 @@ __ffmpeg="$(which ffmpeg || echo '/usr/lib/jellyfin-ffmpeg/ffmpeg')"
 # __command="/config/comskip"
 __command="/config/comcut"
 
-# Set video codec for ffmpeg
-__videocodec="libvpx-vp9"
+# Set video codec for ffmpeg (list of video and audio codecs https://ffmpeg.org/ffmpeg-codecs.html)
+__videocodec="libx264"
 
 # Set audio codec for ffmpeg
-__audiocodec="libopus"
+__audiocodec="aac"
 
 # Set bitrate for audio codec for ffmpeg
 __bitrate="128000"
 
 # Set video container
-___container="mkv"
+__container="mkv"
 
 # Set CRF
 __crf="20"
@@ -73,12 +73,12 @@ printf "[post-process.sh] %bExtracting subtitles...%b\n" "$GREEN" "$NC"
 $__ffmpeg -f lavfi -i movie="${__file}[out+subcc]" -map 0:1 "${__base}.en.srt"
 
 #comcut/comskip - currently using jellyfin ffmpeg in docker
-$__command --ffmpeg=$__ffmpeg --comskip=/usr/local/bin/comskip --lockfile=/tmp/comchap.lock --comskip-ini=/config/comskip/comskip.ini "${__file}"
+$__command --ffmpeg=$__ffmpeg --comskip=/usr/bin/comskip --lockfile=/tmp/comchap.lock --comskip-ini=/config/comskip/comskip.ini "${__file}"
 
 
 # Transcode to mkv, crf parameter can be adjusted to change output quality
 printf "[post-process.sh] %bTranscoding file..%b\n" "$GREEN" "$NC"
-$__ffmpeg -i "${__file}" -acodec "${__audiocodec}" -b:a "${__bitrate}" -vcodec "${__videocodec}" -vf yadif=parity=auto -crf "${__crf}" -preset "{$__preset}" "${__base}.${__container}"
+$__ffmpeg -i "${__file}" -acodec "${__audiocodec}" -b:a "${__bitrate}" -vcodec "${__videocodec}" -vf yadif=parity=auto -crf "${__crf}" -preset "${__preset}" "${__base}.${__container}"
 
 # Remove the original recording file
 printf "[post-process.sh] %bRemoving originial file...%b\n" "$GREEN" "$NC"
